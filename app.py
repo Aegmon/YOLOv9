@@ -13,7 +13,7 @@ print("CUDA available:", torch.cuda.is_available())
 app = Flask(__name__)
 
 # Load the trained YOLOv9 segmentation model
-MODEL_PATH = 'best.pt'  # Update with the correct path to your model
+MODEL_PATH = 'yoloseg9.pt'  # Update with the correct path to your model
 model = YOLO(MODEL_PATH)
 
 # OpenCV VideoCapture (webcam)
@@ -24,7 +24,7 @@ RESIZE_WIDTH = 640
 RESIZE_HEIGHT = 480
 
 # Class names corresponding to indices 0, 1, 2
-CLASS_NAMES = ['Light Fire', 'Light Fire', 'Smoke']  # Adjust this to your model's class names
+CLASS_NAMES = ['Fire', 'Light Fire', 'Smoke']  # Adjust this to your model's class names
 
 def generate_frames():
     prev_time = 0
