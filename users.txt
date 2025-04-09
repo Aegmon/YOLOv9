@@ -1,0 +1,2 @@
+Admin User,admin@email.com,$2b$12$z2qH/OvrPoVcFrdMpZqu0uDGeK9FBJTDQGfjCjm5wMMS6drE4hbRq
+Admin User,test@email.com,$2b$12$9Xy2e5HokqwbgJZwm2aqDOGKcDVQpdKlLjtsnqEGPAiM17gdEQChS

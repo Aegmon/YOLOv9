@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Fire & Smoke Detector - Admin Login</title>
+    <title>Fire & Smoke Detector - User Registration</title>
     <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 </head>
 
@@ -25,7 +25,9 @@
                                              width="132" height="132" />
                                             <h1 class="mt-3" style="color: #FE421C;"><strong>FIRE DETECTION</strong></h1>
                                     </div>
+                                    <h3 class="text-center mt-3">Create an Account</h3>
                                     <form method="POST">
+                            
                                         <div class="mb-3">
                                             <label class="form-label">Email</label>
                                             <input class="form-control form-control-lg" 
@@ -38,22 +40,31 @@
                                             <input class="form-control form-control-lg" 
                                                    type="password" 
                                                    name="password" 
-                                                   placeholder="Enter your password" required />
+                                                   placeholder="Create a password" required />
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Confirm Password</label>
+                                            <input class="form-control form-control-lg" 
+                                                   type="password" 
+                                                   name="confirm_password" 
+                                                   placeholder="Confirm your password" required />
                                         </div>
                                         {% if error %}
                                         <p class="text-danger text-center">{{ error }}</p>
                                         {% endif %}
-                                      
                                         <div class="text-center mt-3">
-                                            <button type="submit" class="btn btn-lg btn-danger">Login</button>
-                                        </div>
-                                        <div class="text-center mt-3">
-                                            <a href="{{ url_for('register') }}" class="btn btn-lg btn-danger">Create Account</a>
+                                            <button type="submit" class="btn btn-lg btn-success">Register</button>
                                         </div>
                                     </form>
+                                    <div class="text-center mt-3">
+                                        <small>Already have an account? 
+                                            <a href="{{ url_for('login') }}">Login here</a>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -62,4 +73,3 @@
 </body>
 
 </html>
-

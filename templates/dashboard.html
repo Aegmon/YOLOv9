@@ -1,0 +1,299 @@
+<!DOCTYPE html> 
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Fire and Smoke Detector</title>
+
+    <!-- Bootstrap & Google Fonts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC1sVDst5UlhtkArP7RqFlhsiZxB_gFrs0&callback=initMap" defer></script>
+    
+    <style>
+        .video-container { width: 100%; height: 400px; overflow: hidden; background: #000; }
+        .video-container img { width: 100%; height: 100%; }
+        #map{ width: 100%; height: 400px; }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <nav id="sidebar" class="sidebar js-sidebar">
+            <div class="sidebar-content js-simplebar">
+                <a class="sidebar-brand" href="#">Fire and Smoke Detector</a>
+                <ul class="sidebar-nav">
+                    <li class="sidebar-item active">
+                        <a class="sidebar-link" href="#">
+                            <i class="fas fa-video"></i> Live Feed
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="main">
+            <nav class="navbar navbar-expand navbar-light navbar-bg">
+                <div class="mx-auto text-center">
+                    <h1 class="mb-0"> <strong>Fire Detection System</strong></h1>
+                </div>
+            </nav>
+
+            <main class="content">
+                <div class="container-fluid p-0">
+                    <h1 class="h3 mb-3">Dashboard</h1>
+                    <div class="row">
+                        <!-- Live Camera Feeds -->
+                        <div class="col-md-6">
+                            <h4>Live Camera 1</h4>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed') }}" />
+                            </div>
+                        </div>
+                        <!-- <div class="col-md-6">
+                            <h4>Live Camera 2</h4>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed', feed_id=2) }}" />
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <h4>Live Camera 3</h4>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed', feed_id=3) }}" />
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <h4>Live Camera 4</h4>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed', feed_id=4) }}" />
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Fire Alert Modal -->
+    <div class="modal fade" id="fireAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+			<div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">WARNING FIRE HAS BEEN DETECTED</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h1>NEED YOUR IMMEDIATE RESPONSE</h1>
+					<div class="row">
+
+						<div class="col-md-6">
+							<h4>Live Camera 1</h4>
+							<div class="video-container">
+								<img src="{{ url_for('video_feed') }}" />
+
+							</div>
+						</div>
+						<div class="col-md-6">
+							<h4>Location</h4>
+							<div id="map"></div>
+						</div>
+					</div>
+                 
+		
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Alert Modal -->
+    <div class="modal fade" id="generalAlertModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+			<div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">WARNING FIRE HAS BEEN DETECTED</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <h1>FIRE WITH LOW SEVERITY IS DETECTED</h1>
+					<div class="row">
+
+						<div class="col-md-12">
+							<h4>Live Camera 1</h4>
+							<div class="video-container">
+								<img src="{{ url_for('video_feed') }}" />
+
+							</div>
+						</div>
+						
+					</div>
+	
+		
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+	<script>
+        let map, marker, geofenceCircle;
+    
+        function initMap() {
+            let defaultLocation = { lat: 14.5995, lng: 120.9842 }; 
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 15,
+                center: defaultLocation
+            });
+    
+            marker = new google.maps.Marker({
+                position: defaultLocation,
+                map: map,
+                title: "Fire Detected",
+                animation: google.maps.Animation.BOUNCE
+            });
+    
+            geofenceCircle = new google.maps.Circle({
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.3,
+                map,
+                center: defaultLocation,
+                radius: 100
+            });
+    
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    let location = { lat: position.coords.latitude, lng: position.coords.longitude };
+                    updateMapLocation(location);
+                },
+                function (error) {
+                    console.error("Geolocation error: ", error.message);
+                }
+            );
+        }
+    
+        function updateMapLocation(location) {
+            if (map && marker && geofenceCircle) {
+                map.setCenter(location);
+                marker.setPosition(location);
+                geofenceCircle.setCenter(location);
+                console.log("User location updated:", location);
+            }
+        }
+    
+        $('#fireAlertModal, #generalAlertModal, #smokeAlertModal').on('shown.bs.modal', function () {
+            if (map) {
+                google.maps.event.trigger(map, "resize");
+                map.setCenter(marker ? marker.getPosition() : map.getCenter());
+                console.log("Map resized and centered");
+            }
+        });
+    
+  
+                setInterval(async function () {
+            try {
+                console.log("🔎 Fetching fire alerts...");
+                let response = await fetch("/check_alert");
+                let data = await response.json();
+                console.log("Alert Data:", data);
+
+                if (data.fire_alert) {
+                    showAlert("fire");
+                    triggerLocationFetch("🔥 Fire Detected");
+                } else if (data.light_fire_alert) {
+                    showAlert("light_fire");
+                    triggerLocationFetch("⚠️ Light Fire Detected");
+                } else {
+                    $('#fireAlertModal').modal('hide');
+                    $('#generalAlertModal').modal('hide');
+                }
+            } catch (error) {
+                console.error("⚠️ Error fetching alerts: ", error);
+            }
+        }, 3000);
+
+        function showAlert(type) {
+            switch (type) {
+                case "fire":
+                    $('#fireAlertModal').modal('show');
+                    console.log("🔥 Fire Alert Modal shown");
+                    break;
+                case "light_fire":
+                    $('#generalAlertModal').modal('show');
+                    console.log("⚠️ Light Fire Alert Modal shown");
+                    break;
+            }
+        }
+
+    
+        function triggerLocationFetch(alertMessage) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    let lat = position.coords.latitude;
+                    let lng = position.coords.longitude;
+                    let locationUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    
+                    console.log("Location for alert:", lat, lng, "URL:", locationUrl);
+                    sendSMS(alertMessage, lat, lng, locationUrl);
+                },
+                function (error) {
+                    console.error("Error getting fire location: ", error.message);
+                }
+            );
+        }
+    
+        function sendSMS(alertType, lat, lng, locationUrl) {
+            let phoneNumbers = ["9096725871", "9876543210"];
+            let wsUri = "ws://192.168.100.6:8030";
+            let websocket = new WebSocket(wsUri);
+
+            websocket.onopen = function () {
+                let messageText = `${alertType} Location: (${lat}, ${lng})`;
+
+                phoneNumbers.forEach((phoneNumber) => {
+                    let data = JSON.stringify({
+                        receiver: phoneNumber,
+                        message: messageText
+                    });
+
+                    console.log("Sending SMS to:", phoneNumber);
+                    websocket.send(data);
+                });
+            };
+
+            websocket.onmessage = function (event) {
+                console.log("WebSocket response:", event.data);
+            };
+
+            websocket.onerror = function (error) {
+                console.error(" WebSocket Error:", error);
+            };
+
+            websocket.onclose = function () {
+                console.log(" WebSocket connection closed.");
+            };
+        }
+
+    </script>
+    
+</body>
+</html>
